@@ -1083,7 +1083,7 @@ class MCL {
                 output .= ') => DllCall(exports.' name
                 for i, v in StrSplit(export.types, "$")
                     output .= ', ' (i & 1 ? '"' StrReplace(v, '_', ' ') '"' : v)
-                output .= ')`n'
+                output .= '),`n'
             }
             output .= '`t}'
             for name, export in exports['g'] {
