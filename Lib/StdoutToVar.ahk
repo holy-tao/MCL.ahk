@@ -19,7 +19,10 @@
 ; ..............: Oct. 06, 2022 - AHK v2 version. Throw exceptions on failure.
 ; ..............: Oct. 08, 2022 - Exceptions management and handles closure fix. Thanks to lexikos and iseahound.
 ; ----------------------------------------------------------------------------------------------------------------------
-StdoutToVar(sCmd, sDir:="", sEnc:="CP0") {
+; bTee: when true, also writes each chunk to AHK's stdout as it arrives, so
+; long-running commands (e.g. gcc) show live progress even if the caller is
+; later killed before processing the returned Output string.
+StdoutToVar(sCmd, sDir:="", sEnc:="CP0", bTee:=false) {
     ; Create 2 buffer-like objects to wrap the handles to take advantage of the __Delete meta-function.
     oHndStdoutRd := { Ptr: 0, __Delete: delete(this) => DllCall("CloseHandle", "Ptr", this) }
     oHndStdoutWr := { Base: oHndStdoutRd }
@@ -80,7 +83,10 @@ StdoutToVar(sCmd, sDir:="", sEnc:="CP0") {
                , "UInt" , nAvail
                , "PtrP" , &nLen
                , "Ptr"  , 0 )
-        sOutput .= StrGet(cBuf, nLen, sEnc)
+        sChunk := StrGet(cBuf, nLen, sEnc)
+        sOutput .= sChunk
+        If bTee
+            FileAppend(sChunk, "*")
     }
     
     ; Get the exit code, close all process handles and return the output object.

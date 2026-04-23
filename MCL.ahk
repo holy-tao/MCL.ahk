@@ -575,7 +575,11 @@ class MCL {
 
                 ; The omit-frame-pointer optimization, enabled by O1-O3, breaks
                 ; imported C runtime functions under 32 bit.
-                "-fno-omit-frame-pointer "
+                "-fno-omit-frame-pointer ",
+                ,
+                ,
+                true ; tee compiler output to stdout so long-running / silent
+                     ; failures (e.g. CI OOM kills) still surface progress.
             )
 
             if out.ExitCode
